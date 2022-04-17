@@ -10,8 +10,8 @@ class Weather(Enum):
 
 def get_weather(location):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((socket.gethostbyname("localhost"), 3143))
-    client.send(b'GET /api?location=' + location.encode('utf-8') + b'\r\n\r\n')
+    client.connect((socket.gethostbyname("weather.kramer.dev.br"), 80))
+    client.send(b'GET /' + location.encode('utf-8') + b'\r\n\r\n')
     data = client.recv(1024)
     print(data.decode("utf-8"))
     client.close()
