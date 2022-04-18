@@ -17,7 +17,7 @@ weather = {
 # Parse arguments
 parser = argparse.ArgumentParser(description="Simple HTTP Server")
 parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
-parser.add_argument("--port", default=80, type=int, help="Port to bind to")
+parser.add_argument("--port", default=3000, type=int, help="Port to bind to")
 args = parser.parse_args()
 
 log_file = open("log.dat", "w")
