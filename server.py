@@ -7,12 +7,6 @@ import client
 import select
 import requests
 
-weather = {
-    client.Weather.London.value: [datetime.now() - timedelta(seconds=1), 0],
-    client.Weather.Paris.value: [datetime.now() - timedelta(seconds=1), 0],
-    client.Weather.NewYork.value: [datetime.now() - timedelta(seconds=1), 0]
-}
-
 locations_dict = {}
 
 
@@ -99,7 +93,7 @@ def get_temperature(location):
             return locations_dict[location]["temp"]
         else:
             write_message(
-            f"Weather data for {location} is too old, requesting new data")
+            f"Weather data for {location} is obsolete, requesting new data")
             coords = locations_dict[location]["coords"]
     if get_temperature_api(location, coords) is None:
         return None
@@ -125,7 +119,7 @@ def get_temperature_api(location, coords):
             location: {
             "coords": coords,
             "temp": temp, 
-            "expiration": datetime.now() + timedelta(seconds=10)
+            "expiration": datetime.now() + timedelta(minutes=30)
             }
         })  
     return True
