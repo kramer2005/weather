@@ -1,17 +1,19 @@
 from asyncore import write
-from numpy import random
 import socket
 import argparse
 import signal
 from datetime import datetime, timedelta
 import client
 import select
+import requests
 
 weather = {
     client.Weather.London.value: [datetime.now() - timedelta(seconds=1), 0],
     client.Weather.Paris.value: [datetime.now() - timedelta(seconds=1), 0],
     client.Weather.NewYork.value: [datetime.now() - timedelta(seconds=1), 0]
 }
+
+locations_dict = {}
 
 
 # Parse arguments
@@ -52,19 +54,6 @@ def user_exit(s, message):
     exit(0)
 
 
-def get_temperature(location):
-    if not weather.get(location):
-        write_message(f"No weather data for {location}")
-        return None
-    if datetime.now() < weather[location][0]:
-        return weather[location][1]
-    write_message(
-        f"Weather data for {location} is too old, requesting new data")
-    weather[location][0] = datetime.now() + timedelta(seconds=1)
-    weather[location][1] = random.randint(16, 28)
-    return weather[location][1]
-
-
 def send_log(conn):
     log_file = open("log.dat", "r")
     str = log_file.read()
@@ -83,6 +72,67 @@ def decode_location(data):
     except Exception as e:
         write_message(f"Exception: {e}")
         return None
+
+
+def get_coords(location):
+    url = "http://api.openweathermap.org/geo/1.0/direct"
+    params = {
+        'q': location,
+        'limit': '1',
+        'appid': '71b61c7dff028cb38320bd2d640a3932'
+    }
+    res = requests.get(url, params)
+    data = res.json()
+    print(len(data))
+    if len(data) > 0:
+        return {"lat": data[0]["lat"], "lon": data[0]["lon"]}
+    return None
+
+
+def get_temperature(location):
+    data = locations_dict.get(location)
+    coords = None
+    if data == None:
+        write_message(f"No previous data for {location}, fetching")
+        coords = get_coords(location)
+    else:
+        if datetime.now() < locations_dict[location]["expiration"]:
+            return locations_dict[location]["temp"]
+        else:
+            write_message(
+            f"Weather data for {location} is too old, requesting new data")
+            coords = locations_dict[location]["coords"]
+    print(location)
+    print(coords)
+    if get_temperature_api(location, coords) is None:
+        return None
+    return locations_dict[location]["temp"]
+
+# gets weather information from AccuWeather api and saves it in the cache
+def get_temperature_api(location, coords):
+    if coords is None:
+        write_message(f"No data for {location}, or {location} is not a valid location")
+        return None
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        'lat': coords["lat"],
+        'lon': coords["lon"],
+        'units': 'metric',
+        'appid': '71b61c7dff028cb38320bd2d640a3932',
+    }
+    res = requests.get(url, params)
+    data = res.json()
+    print(data["main"]["temp"])
+    temp = data["main"]["temp"]
+    locations_dict.update(
+        {
+            location: {
+            "coords": coords,
+            "temp": temp, 
+            "expiration": datetime.now() + timedelta(seconds=10)
+            }
+        })  
+    return True
 
 
 def main():
@@ -120,8 +170,9 @@ def main():
                     400, "Bad Request: Invalid path\nPlease use /api?location=<location>\n"))
                 client.close()
                 continue
-
             temperature = get_temperature(location)
+            print(temperature)
+            # print(locations_dict)
             if temperature is None:
                 write_message(f"Not Found: Invalid location from {addr}")
                 client.send(create_response(
