@@ -3,7 +3,6 @@ import socket
 import argparse
 import signal
 from datetime import datetime, timedelta
-import client
 import select
 import requests
 
@@ -163,7 +162,6 @@ def main():
                 continue
 
             temperature = get_temperature(location)
-            print(temperature)
             if temperature is None:
                 write_message(f"Not Found: Invalid location from {addr}: {location}")
                 client.send(create_response(
@@ -173,7 +171,7 @@ def main():
 
             client.send(create_response(
                 200, '{"temperature": ' + str(temperature) + '}\n'))
-            write_message(f"Temperature sent to {addr}")
+            write_message(f"Temperature for {location} sent to {addr}")
             client.close()
         except Exception as e:
             if e.errno != 9:
