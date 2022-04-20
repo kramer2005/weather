@@ -83,7 +83,6 @@ def get_coords(location):
     }
     res = requests.get(url, params)
     data = res.json()
-    print(len(data))
     if len(data) > 0:
         return {"lat": data[0]["lat"], "lon": data[0]["lon"]}
     return None
@@ -102,8 +101,6 @@ def get_temperature(location):
             write_message(
             f"Weather data for {location} is too old, requesting new data")
             coords = locations_dict[location]["coords"]
-    print(location)
-    print(coords)
     if get_temperature_api(location, coords) is None:
         return None
     return locations_dict[location]["temp"]
@@ -122,7 +119,6 @@ def get_temperature_api(location, coords):
     }
     res = requests.get(url, params)
     data = res.json()
-    print(data["main"]["temp"])
     temp = data["main"]["temp"]
     locations_dict.update(
         {
@@ -146,7 +142,7 @@ def main():
         server, "Server closing by user"))
     while True:
         try:
-            print("Waiting for connection...")
+            write_message("Waiting for connection...")
             client, addr = server.accept()
             ready = select.select([client], [], [], 0.5)
             if not ready[0]:
@@ -158,23 +154,24 @@ def main():
             data = client.recv(1024)
 
             location = decode_location(data)
+
+            if location is None or location is "":
+                write_message(f"Bad Request: Invalid path from {addr}")
+                client.send(create_response(
+                    400, "Bad Request: Invalid path\nPlease use weather.kramer.dev.br/<location>\n"))
+                client.close()
+                continue
+
             if location == "log":
                 send_log(client)
                 write_message(f"Log sent to {addr}")
                 client.close()
                 continue
 
-            if location is None:
-                write_message(f"Bad Request: Invalid path from {addr}")
-                client.send(create_response(
-                    400, "Bad Request: Invalid path\nPlease use /api?location=<location>\n"))
-                client.close()
-                continue
             temperature = get_temperature(location)
             print(temperature)
-            # print(locations_dict)
             if temperature is None:
-                write_message(f"Not Found: Invalid location from {addr}")
+                write_message(f"Not Found: Invalid location from {addr}: {location}")
                 client.send(create_response(
                     404, "Not Found: Invalid location\n"))
                 client.close()
@@ -182,6 +179,7 @@ def main():
 
             client.send(create_response(
                 200, '{"temperature": ' + str(temperature) + '}\n'))
+            write_message(f"Temperature sent to {addr}")
             client.close()
         except Exception as e:
             if e.errno != 9:
