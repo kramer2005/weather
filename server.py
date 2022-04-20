@@ -92,16 +92,19 @@ def get_temperature(location):
             return locations_dict[location]["temp"]
         else:
             write_message(
-            f"Weather data for {location} is obsolete, requesting new data")
+                f"Weather data for {location} is obsolete, requesting new data")
             coords = locations_dict[location]["coords"]
     if get_temperature_api(location, coords) is None:
         return None
     return locations_dict[location]["temp"]
 
 # gets weather information from AccuWeather api and saves it in the cache
+
+
 def get_temperature_api(location, coords):
     if coords is None:
-        write_message(f"No data for {location}, or {location} is not a valid location")
+        write_message(
+            f"No data for {location}, or {location} is not a valid location")
         return None
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
@@ -116,11 +119,11 @@ def get_temperature_api(location, coords):
     locations_dict.update(
         {
             location: {
-            "coords": coords,
-            "temp": temp, 
-            "expiration": datetime.now() + timedelta(minutes=30)
+                "coords": coords,
+                "temp": temp,
+                "expiration": datetime.now() + timedelta(seconds=30)
             }
-        })  
+        })
     return True
 
 
@@ -163,7 +166,8 @@ def main():
 
             temperature = get_temperature(location)
             if temperature is None:
-                write_message(f"Not Found: Invalid location from {addr}: {location}")
+                write_message(
+                    f"Not Found: Invalid location from {addr}: {location}")
                 client.send(create_response(
                     404, "Not Found: Invalid location\n"))
                 client.close()
