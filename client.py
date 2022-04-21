@@ -1,30 +1,30 @@
+import os
+import sys
 import socket
-from time import sleep
-from enum import Enum
-
-
-class Weather(Enum):
-    London = "london"
-    Paris = "paris"
-    NewYork = "newyork"
+import urllib.parse
 
 
 def get_weather(location):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('54.237.151.129', 80))
-    client.send(b'GET /' + location.encode() +
+    client.connect(('weather.kramer.dev.br', 80))
+    client.send(b'GET /' + urllib.parse.quote(location).encode() +
                 b' HTTP/1.1\r\nHost: weather.kramer.dev.br\r\n\r\n')
     response = client.recv(1024)
+    response = response.decode('utf-8')
+    if len(response.split("404")) > 1:
+        return "Invalid location"
+    temperature = response.split("temperature\": ")[1].split("}")[0]
     client.close()
-    return response.decode('utf-8')
+    return temperature
 
 
-def main():
-    print(get_weather(Weather.London.value))
-    print(get_weather(Weather.Paris.value))
-    print(get_weather(Weather.NewYork.value))
-    sleep(1)
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        print(get_weather(sys.argv[1]))
+    else:
+        print("Utilização: " + __file__ + " <cidade>")
+        print("cidade:")
+        print("\tA cidade pode estar formatada como:")
+        print("\t - <cidade>, exemplo: \n\t\tpython " + __file__ + " Paris")
+        print("\t - \"<cidade>, <Sigla do país>\", exemplo: \n\t\tpython " +
+              __file__ + " \"Paris, FR\"")

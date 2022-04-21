@@ -60,7 +60,9 @@ def decode_location(data):
         headers, sep, body = data.partition(b'\r\n\r\n')
         headers = headers.decode('latin1')
         params = headers.split('\r\n')[0]
-        path = params.split(' /')[1].split(' ')[0]
+        if "/log" in params:
+            return "log"
+        path = params.split('location=')[1].split(' ')[0]
         return path
     except Exception as e:
         write_message(f"Exception: {e}")
@@ -151,10 +153,10 @@ def main():
 
             location = decode_location(data)
 
-            if location is None or location is "":
+            if location is None or location == "":
                 write_message(f"Bad Request: Invalid path from {addr}")
                 client.send(create_response(
-                    400, "Bad Request: Invalid path\nPlease use weather.kramer.dev.br/<location>\n"))
+                    400, "Bad Request: Invalid path\nPlease use weather.kramer.dev.br/api?location=<location>\n"))
                 client.close()
                 continue
 
