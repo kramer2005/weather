@@ -9,7 +9,6 @@ RUN yarn global add serve
 
 COPY src ./src
 COPY public ./public
-COPY .env.production .
 
 RUN yarn build
 
