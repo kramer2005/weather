@@ -16,10 +16,11 @@ CLI usage:
                 python client.py "Paris, FR"
 """
 
-import os
 import sys
 import socket
 import urllib.parse
+
+__author__ = "Wagner Kramer, Diogo Kraut"
 
 
 def get_weather(location: str):
