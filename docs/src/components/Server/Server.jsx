@@ -5,7 +5,7 @@ const Server = () => {
   const [data, setData] = useState('...loading')
 
   useEffect(() => {
-    fetch('/server.py').then(async (response) => {
+    fetch('server.py').then(async (response) => {
       setData(await response.text())
     })
   }, [])

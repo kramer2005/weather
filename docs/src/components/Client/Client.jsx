@@ -5,7 +5,7 @@ const Client = () => {
   const [data, setData] = useState('...loading')
 
   useEffect(() => {
-    fetch('/client.py').then(async (response) => {
+    fetch('client.py').then(async (response) => {
       setData(await response.text())
     })
   }, [])
