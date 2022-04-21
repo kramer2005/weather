@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""Weather API Server
+
+Request data from OpenWeather and stores it in a cache table for easier access.
+"""
+
 from asyncore import write
 import socket
 import argparse
@@ -6,8 +12,10 @@ from datetime import datetime, timedelta
 import select
 import requests
 
-locations_dict = {}
+__author__ = "Wagner Kramer, Diogo Kraut"
 
+
+locations_dict = {}
 
 # Parse arguments
 parser = argparse.ArgumentParser(description="Simple HTTP Server")
@@ -19,12 +27,18 @@ log_file = open("log.dat", "w")
 
 
 def write_message(message):
+    """Print log messages"""
     log_file.write(f"[{datetime.now()}]: {message}\n")
     log_file.flush()
     print(f"[{datetime.now()}]: {message}")
 
 
-def create_response(status_code, body, type="application/json"):
+def create_response(status_code: int, body: str, type="application/json"):
+    """Create HTTP Response
+    status_code: The HTTP status code
+    body: The response content
+    type: The response MIME Type
+    """
     response = f"HTTP/1.1 {status_code}\r\n"
     response += "Content-Type: " + type + "\r\n"
     response += f"Content-Length: {len(body)}\r\n"
@@ -33,21 +47,32 @@ def create_response(status_code, body, type="application/json"):
     return bytes(response, "utf-8")
 
 
-def create_socket(host, port):
+def create_socket(host: str, port: int):
+    """Create the socket and start listening
+    host: Host IP
+    port: Port to listen
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     s.listen(1)
     return s
 
 
-def user_exit(s, message):
+def user_exit(s: socket, message: str):
+    """Close the socket and end the execution
+    s: Active socket
+    message: Message to print while exiting
+    """
     write_message(message)
     s.close()
     log_file.close()
     exit(0)
 
 
-def send_log(conn):
+def send_log(conn: socket):
+    """Send log file to the connection
+    conn: Connected client
+    """
     log_file = open("log.dat", "r")
     str = log_file.read()
     conn.send(create_response(200, str, type="text/plain"))
@@ -55,7 +80,10 @@ def send_log(conn):
     pass
 
 
-def decode_location(data):
+def decode_location(data: bytes):
+    """Decode the requested location
+    data: Received header
+    """
     try:
         headers, sep, body = data.partition(b'\r\n\r\n')
         headers = headers.decode('latin1')
@@ -69,7 +97,10 @@ def decode_location(data):
         return None
 
 
-def get_coords(location):
+def get_coords(location: str):
+    """Connect to API to get location coordinates
+    location: City to find
+    """
     url = "http://api.openweathermap.org/geo/1.0/direct"
     params = {
         'q': location,
@@ -83,7 +114,8 @@ def get_coords(location):
     return None
 
 
-def get_temperature(location):
+def get_temperature(location: str):
+    """Get temperature for requested location"""
     data = locations_dict.get(location)
     coords = None
     if data == None:
@@ -100,10 +132,9 @@ def get_temperature(location):
         return None
     return locations_dict[location]["temp"]
 
-# gets weather information from AccuWeather api and saves it in the cache
-
 
 def get_temperature_api(location, coords):
+    """Requests OpenWeather temperature for location and update cache"""
     if coords is None:
         write_message(
             f"No data for {location}, or {location} is not a valid location")
@@ -131,17 +162,22 @@ def get_temperature_api(location, coords):
 
 def main():
     write_message("Starting server...")
+    # Create Socket
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Set option to shutdown socket on exit
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind((args.host, args.port))
     server.listen()
     write_message(f"Listening on {args.host}:{args.port}")
     signal.signal(signal.SIGINT, lambda s, f: user_exit(
-        server, "Server closing by user"))
+        server, "Server closing by user"))  # Gracefully exit on CTRL+C
     while True:
         try:
             write_message("Waiting for connection...")
             client, addr = server.accept()
+
+            # Timeout if client don't send any data
             ready = select.select([client], [], [], 0.5)
             if not ready[0]:
                 client.send(create_response(408, "Timeout\n"))
@@ -153,6 +189,7 @@ def main():
 
             location = decode_location(data)
 
+            # Invalid URL
             if location is None or location == "":
                 write_message(f"Bad Request: Invalid path from {addr}")
                 client.send(create_response(
@@ -160,6 +197,7 @@ def main():
                 client.close()
                 continue
 
+            # Log request
             if location == "log":
                 send_log(client)
                 write_message(f"Log sent to {addr}")
@@ -167,6 +205,8 @@ def main():
                 continue
 
             temperature = get_temperature(location)
+
+            # Invalid temperature
             if temperature is None:
                 write_message(
                     f"Not Found: Invalid location from {addr}: {location}")
