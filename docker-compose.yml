@@ -7,6 +7,13 @@ services:
       - nginx-network
     external_links:
       - nginx
+  weather_docks:
+    container_name: weather_docs
+    build: docs
+    networks:
+      - nginx-network
+    external_links:
+      - nginx
 
 networks:
   nginx-network:
