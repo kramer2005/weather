@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  docs:
+    container_name: weather_docs
+    build: .
+    networks:
+      - nginx-network
+    external_links:
+      - nginx
+
+networks:
+  nginx-network:
+    external: true
