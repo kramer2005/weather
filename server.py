@@ -209,8 +209,6 @@ def main():
 
             # Invalid temperature
             if temperature is None:
-                write_message(
-                    f"Not Found: Invalid location: {location}")
                 client.send(create_response(
                     404, "Not Found: Invalid location\n"))
                 client.close()
