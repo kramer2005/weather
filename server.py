@@ -40,6 +40,7 @@ def create_response(status_code: int, body: str, type="application/json"):
     type: The response MIME Type
     """
     response = f"HTTP/1.1 {status_code}\r\n"
+    response += "Access-Control-Allow-Origin: *\r\n"
     response += "Content-Type: " + type + "\r\n"
     response += f"Content-Length: {len(body)}\r\n"
     response += "\r\n"
