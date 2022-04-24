@@ -14,7 +14,8 @@ const Client = () => {
         simplificar a solicitação). Abaixo está o código do cliente comentado em
         português:
       </p>
-      <CodeViewer language={'python'}>{`def get_weather(location: str):
+      <CodeViewer language={'python'}>{`
+def get_weather(location: str, host: str = "weather.kramer.dev.br", port: int = 80):
     # Cria Socket
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
@@ -23,7 +24,7 @@ const Client = () => {
     
     # Envia requisição
     client.send(b'GET /api?location=' + urllib.parse.quote(location).encode() +
-                b' HTTP/1.1\\r\\nHost: weather.kramer.dev.br\\r\\n\\r\\n')
+                b' HTTP/1.1\\r\\nHost: ' + host.encode() + b'\\r\\n\\r\\n')
     
     # Recebe resposta
     response = client.recv(1024)

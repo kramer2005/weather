@@ -31,10 +31,10 @@ def get_weather(location: str, host: str = "weather.kramer.dev.br", port: int = 
                 b' HTTP/1.1\r\nHost: ' + host.encode() + b'\r\n\r\n')
     response = client.recv(1024)
     response = response.decode('utf-8')
+    client.close()
     if "404" in response:
         return "Invalid location"
     temperature = response.split("temperature\": ")[1].split("}")[0]
-    client.close()
     return float(temperature)
 
 
@@ -42,7 +42,8 @@ if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser(description="Simple HTTP Server")
     parser.add_argument("location", help="Location to request temperature")
-    parser.add_argument("--host", default="weather.kramer.dev.br", help="Host to bind to")
+    parser.add_argument(
+        "--host", default="weather.kramer.dev.br", help="Host to bind to")
     parser.add_argument("--port", default=80,
                         type=int, help="Port to bind to")
     args = parser.parse_args()

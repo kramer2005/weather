@@ -47,19 +47,33 @@ def write_message(message):
       </p>
       <p>Abaixo está um exemplo de log comentado:</p>
       <CodeViewer language={'text'}>{`
-[2022-04-24 13:48:59.400398]: Starting server...                                          # Inicia o servidor
-[2022-04-24 13:48:59.400491]: Listening on 0.0.0.0:3000                                   # Escuta na porta 3000
-[2022-04-24 13:48:59.400542]: Waiting for connection...                                   # Aguarda conexão
-[2022-04-24 13:50:32.479133]: Client requested data for Curitiba                          # Cliente conectado
-[2022-04-24 13:50:32.479224]: No previous data for Curitiba, fetching                     # Não há dados para Curitiba, buscando
-[2022-04-24 13:50:32.854967]: Requested data sent                                         # Temperatura para Curitiba enviada
-[2022-04-24 13:50:32.855064]: Waiting for connection...                                   # Aguarda conexão
-[2022-04-24 13:50:34.633692]: Client requested data for Curitiba                          # Cliente conectado
-[2022-04-24 13:50:34.633975]: Requested data sent                                         # Temperatura para Curitiba enviada
-[2022-04-24 13:50:34.634058]: Waiting for connection...                                   # Aguarda conexão
-[2022-04-24 13:50:34.881655]: Client requested data for Curitiba                          # Cliente conectado
-[2022-04-24 13:51:32.055351]: Weather data for Curitiba is obsolete, requesting new data  # Dados obsoletos, buscando novos dados
-[2022-04-24 13:51:32.099288]: Requested data sent                                         # Temperatura para Curitiba enviada
+[2022-04-24 18:08:42.533564]: Starting server...                                                  # Início do servidor
+[2022-04-24 18:08:42.533619]: Listening on 0.0.0.0:3000                                           # Ouvindo na porta 3000
+[2022-04-24 18:08:42.533663]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:08:45.889431]: Client connected                                                    # Cliente conectado
+[2022-04-24 18:08:45.889493]: No previous data for invalid-city, fetching                         # Buscando dados para cidade inválida
+[2022-04-24 18:08:46.491762]: No data for invalid-city, or invalid-city is not a valid location   # Cidade não encontrada, retorna 404
+[2022-04-24 18:08:46.492100]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:09:16.153838]: Client connected                                                    # Cliente conectado
+[2022-04-24 18:09:16.153924]: Exception: list index out of range                                  # Erro na leitura da URL
+[2022-04-24 18:09:16.153954]: Bad Request: Invalid path                                           # A URL é inválida
+[2022-04-24 18:09:16.154070]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:09:16.655586]: Timeout                                                             # Tempo limite excedido, cliente não mandou dados
+[2022-04-24 18:09:16.655739]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:09:30.950526]: Client connected                                                    # Cliente conectado
+[2022-04-24 18:09:30.950595]: No previous data for curitiba, fetching                             # Buscando dados para cidade curitiba
+[2022-04-24 18:09:32.670555]: Temperature for curitiba sent                                       # Dados para cidade curitiba enviados
+[2022-04-24 18:09:32.670833]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:09:33.522224]: Client connected                                                    # Cliente conectado
+[2022-04-24 18:09:33.522371]: Temperature for curitiba sent                                       # Dados para cidade curitiba enviados
+[2022-04-24 18:09:33.522423]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:09:34.569073]: Client connected                                                    # Cliente conectado
+[2022-04-24 18:09:34.569129]: Log sent to client                                                  # Log enviado para o cliente
+[2022-04-24 18:09:34.569183]: Waiting for connection...                                           # Esperando conexão
+[2022-04-24 18:50:35.569073]: Client connected                                                    # Cliente conectado
+[2022-04-24 18:50:35.569129]: Weather data for curitiba is obsolete, requesting new data          # Entrada para curitiba obsoleta, solicitando nova entrada
+[2022-04-24 18:50:33.576542]: Temperature for curitiba sent                                       # Dados para cidade curitiba enviados
+[2022-04-24 18:50:36.601051]: Server closing by user                                              # Fechando o servidor pelo usuário
 
 `}</CodeViewer>
       <h3>Inicialização, conexão e recebimento de dados:</h3>
