@@ -7,7 +7,7 @@ Library usage:
     Import the get_weather function and call it as get_weather(city).
 
 CLI usage:
-    client.py <city>
+    client.py <city> [--host=<host>] [--port=<port>]
     city:
         The city can be formated as:
         - <city>, example: 
@@ -16,35 +16,35 @@ CLI usage:
                 python client.py "Paris, FR"
 """
 
-import sys
+import argparse
 import socket
 import urllib.parse
 
 __author__ = "Wagner Kramer, Diogo Kraut"
 
 
-def get_weather(location: str):
+def get_weather(location: str, host: str = "weather.kramer.dev.br", port: int = 80):
     """Request location temperature from Weather API"""
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('weather.kramer.dev.br', 80))
+    client.connect((host, port))
     client.send(b'GET /api?location=' + urllib.parse.quote(location).encode() +
-                b' HTTP/1.1\r\nHost: weather.kramer.dev.br\r\n\r\n')
+                b' HTTP/1.1\r\nHost: ' + host.encode() + b'\r\n\r\n')
     response = client.recv(1024)
     response = response.decode('utf-8')
-    if len(response.split("404")) > 1:
+    client.close()
+    if "404" in response:
         return "Invalid location"
     temperature = response.split("temperature\": ")[1].split("}")[0]
-    client.close()
     return float(temperature)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        print(get_weather(sys.argv[1]))
-    else:
-        print("Utilização: " + __file__ + " <cidade>")
-        print("cidade:")
-        print("\tA cidade pode estar formatada como:")
-        print("\t - <cidade>, exemplo: \n\t\tpython " + __file__ + " Paris")
-        print("\t - \"<cidade>, <Sigla do país>\", exemplo: \n\t\tpython " +
-              __file__ + " \"Paris, FR\"")
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Simple HTTP Server")
+    parser.add_argument("location", help="Location to request temperature")
+    parser.add_argument(
+        "--host", default="weather.kramer.dev.br", help="Host to bind to")
+    parser.add_argument("--port", default=80,
+                        type=int, help="Port to bind to")
+    args = parser.parse_args()
+    print(get_weather(args.location, args.host, args.port))

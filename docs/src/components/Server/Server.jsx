@@ -117,7 +117,7 @@ def main():
                 client.close()
                 write_message("Timeout")
                 continue
-            write_message(f"Client connected from {addr}")
+            write_message(f"Client connected")
 
             # Recebe os dados
             data = client.recv(1024)
@@ -127,7 +127,7 @@ def main():
 
             # Se a localização é inválida, envia uma resposta com erro 400
             if location is None or location == "":
-                write_message(f"Bad Request: Invalid path from {addr}")
+                write_message(f"Bad Request: Invalid path")
                 client.send(create_response(
                     400, "Bad Request: Invalid path\\nPlease use /api?location=<location>\\n"))
                 client.close()
@@ -136,7 +136,7 @@ def main():
             # Se o usuário requisitou o log, envia o arquivo de log
             if location == "log":
                 send_log(client)
-                write_message(f"Log sent to {addr}")
+                write_message(f"Log sent to client")
                 client.close()
                 continue
 
@@ -145,8 +145,6 @@ def main():
 
             # Trata local não encontrado
             if temperature is None:
-                write_message(
-                    f"Not Found: Invalid location from {addr}: {location}")
                 client.send(create_response(
                     404, "Not Found: Invalid location\\n"))
                 client.close()
@@ -155,7 +153,7 @@ def main():
             # Envia a temperatura
             client.send(create_response(
                 200, '{"temperature": ' + str(temperature) + '}\\n'))
-            write_message(f"Temperature for {location} sent to {addr}")
+            write_message(f"Temperature for {location} sent")
 
             # Encerra a conexão
             client.close()
