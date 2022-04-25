@@ -77,6 +77,17 @@ const App = () => {
             O servidor está rodando em um container Docker e hospedado em uma
             máquina virtual na AWS.
           </p>
+          <h2>Diagrama de Sequência</h2>
+          <p>
+            O diagrama de sequência ilustra a ordem das operações realizadas
+            pelo cliente/servidor para os diferentes estados dos dados na cache.
+          </p>
+          <img
+            src="sequence.jpg"
+            alt="Diagrama de sequência."
+            width="100%"
+            height="auto"
+          />
           <Client />
           <Server />
         </Content>
